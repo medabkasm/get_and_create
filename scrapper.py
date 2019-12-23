@@ -1,3 +1,5 @@
+import abc
+import requests
 
 class WebSite:
     '''
@@ -53,7 +55,6 @@ class WebSite:
     def start(self):
         if not self.url == None:
             try:
-                import requests
                 response = requests.get(self.url)
                 print("response returned with {} http code.",response.status_code)
                 return response
@@ -63,6 +64,7 @@ class WebSite:
         else:
             print("Error :: in start() : the url property is not setted properly.")
             return None
+
 
 class Page:
         '''
@@ -81,11 +83,34 @@ class Page:
                 argument:
                     1 - print_data : boolean to print the metadata of the page's object website.
                     2 - returnWebSiteObj : boolean to return a website object of this page object.
+            4 - start_consecutive :
+                1 - scrap the from begin page to end page consecutively.
+                arguments:
+                    1 - fromPage : the begining page to start scrap from.
+                    2 - endPage : the end page to stop scrap in.
+            5 - start_non_consecutive :
+                1 - scrap random pages non consecutively.
+                arguments:
+                    1 - pagesList : int list with pages numbers to be scrapped.
+            6 - start_to_end :
+                1 - scrap all the pages from a given page to the end of pagination.
+                arguments:
+                    fromPage : the begining page to start scrap from.
+            note:
+                the last 3 methods accept an important extra argument wich is a PaginationRule class instance ,
+                the object has three methods to get the correct url of each page to be scrapped.
+                1 - start_consecutive : uses the PaginationRule object consecutive_pages()  method .
+                2 - start_non_consecutive : uses the PaginationRule object non_consecutive_pages() method .
+                3 - start_to_end : uses the PaginationRule object to_the_end_pages() method.
 
         '''
         def __init__(self,baseUrl):
             self.baseUrl = baseUrl
+            if not self.baseUrl[-1] == '/':
+                self.baseUrl = self.baseUrl + '/'
             self.website = None
+            self.urls = None
+
             print("the base url setted properly : {}".format(self.baseUrl))
         def set_website(self,website,returnWebSiteObj = False):
             self.website = website
@@ -108,3 +133,91 @@ class Page:
             else:
                 print("Error :: in get_website() : this page object has no website object setted.")
                 return None
+
+
+
+        def start_consecutive(self,fromPage,toPage,paginationRule):
+            if not isinstance(fromPage,int) and isinstance(endPage,int) and isinstance(paginationRule,PaginationRule):
+                print("Error :: in start_consecutive : arguments must be with int type , PaginationRule argument must be a PaginationRule object.")
+                return None
+            else:
+                if toPage < fromPage:
+                    print("Error :: in start_consecutive : second argument must be bigger than first argument.")
+                    return None
+            self.fromPage = fromPage
+            self.toPage = toPage
+            self.urls = paginationRule.consecutive_pages(self.baseUrl,self.fromPage,self.toPage)
+
+        def start_non_consecutive(self,pagesList,paginationRule):
+            if not isinstance(pagesList,list) and len(pagesList) >= 1 and isinstance(paginationRule,PaginationRule):
+                print("Error :: in start_non_consecutive : argument must be a list with more than one item , PaginationRule argument must be a PaginationRule object.")
+            self.pagesList = pagesList
+            self.urls = paginationRule.non_consecutive_pages(self.baseUrl,self.pagesList)
+
+        def start_to_end(self,fromPage,paginationRule):
+            if not isinstance(fromPage,int) and isinstance(paginationRule,PaginationRule):
+                print("Error :: start_to_end : argument must be with int type , PaginationRule argument must be a PaginationRule object.")
+                return None
+            self.fromPage = fromPage
+            self.urls = paginationRule.to_the_end_pages(self.baseUrl,self.fromPage)
+
+
+        def begin_the_play(self,item):
+            if not self.urls == None and isinstance(item,Items):
+                try:
+                    for url in self.urls:
+                        response = requests.get(url)
+
+                except Exception as err:
+                    print("Error :: in begin_the_play : {}.".format(str(err)))
+                    print("operation stopped.")
+                    return None
+            else:
+                print("Error :: in begin_the_play : the urls attribute is not setted properly , item argument must be an instance of Items class.")
+                return None
+
+
+
+
+class PaginationRule(abc.ABC):
+    @abc.abstractmethod
+    def consecutive_pages(self,url,fromPage,toPage,rule = ''):  # rule argument for cases where pagination in this form   url/?page=Page_number , where rule = ?page=
+        pass
+    @abc.abstractmethod
+    def non_consecutive_pages(self,url,pagesList,rule = ''):
+        pass
+    @abc.abstractmethod
+    def to_the_end_pages(self,url,fromPage,rule = ''):
+        pass
+
+
+
+class OuedKniss(PaginationRule):
+    def consecutive_pages(self,url,fromPage,toPage):
+        for page in range(fromPage,toPage + 1):
+            yield (url + str(page))
+    def non_consecutive_pages(self,url,pagesList):
+        for page in pagesList:
+            yield (url + str(page))
+    def to_the_end_pages(self,url,fromPage):
+        stopCondition = 'not setted yet'
+        while not stopCondition:
+            yield (url + str(page))
+
+class Items:
+    def __init__(self,title='',image='',price='',description='',date=''):
+        self.titleSelector = title
+        self.imageSelector = image
+        self.priceSelector = price
+        self.descriptionSelector = description
+        self.dateSelector = date
+
+
+
+'''
+website = WebSite('OuedKniss','http://www.ouedKniss.dz','e-commerce web site')
+page = Page("https://www.ouedkniss.com/telephones")
+ouedKniss = OuedKniss()
+page.start_consecutive(1,3,ouedKniss)
+item = Items()
+page.begin_the_play(item)'''
