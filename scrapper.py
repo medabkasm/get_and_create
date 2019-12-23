@@ -108,17 +108,3 @@ class Page:
             else:
                 print("Error :: in get_website() : this page object has no website object setted.")
                 return None
-
-
-website = WebSite("name","url","description")
-obj = Page("http://Lorem.com")
-obj.set_website("website")
-obj.set_website(website)
-f = obj.get_website(True,True)
-print(f)
-f = obj.get_website(False,True)
-print(f)
-f = obj.get_website(True,False)
-print(f)
-f = obj.get_website(False,False)
-print(f)
