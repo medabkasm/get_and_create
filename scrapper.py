@@ -1,6 +1,6 @@
 import requests
 from bs4 import BeautifulSoup as soup
-
+from extenders import PaginationRule
 CRED    = "\33[31m"
 CGREEN  = "\33[32m"
 CEND = "\033[0m"
@@ -74,11 +74,11 @@ class WebSite:
 class Page:
         '''
             1 - __init__ :
-                initialize the Page class instance with the base url of the page of the items to be scrapped.
+                1 - initialize the Page class instance with the base url of the page of the items to be scrapped.
                 arguments:
                     baseUrl : the base url of items page to be scrapped.
             2 - set_website :
-                set the website object of this page object.
+                1 - set the website object of this page object.
                 arguments:
                     website : WebSite object to be setted as parent website of this items page.
                     returnWebSiteObj : boolean to make the set_website() returns the object of the WebSite class which we have setted.
@@ -86,13 +86,13 @@ class Page:
             3 - get_website :
                 1 - get the website data of this page object.
                 argument:
-                    1 - print_data : boolean to print the metadata of the page's object website.
-                    2 - returnWebSiteObj : boolean to return a website object of this page object.
+                    print_data : boolean to print the metadata of the page's object website.
+                    returnWebObj : boolean to return a website object of this page object.
             4 - start_consecutive :
                 1 - scrap the from begin page to end page consecutively.
                 arguments:
-                    1 - fromPage : the begining page to start scrap from.
-                    2 - endPage : the end page to stop scrap in.
+                    fromPage : the begining page to start scrap from.
+                    endPage : the end page to stop scrap in.
             5 - start_non_consecutive :
                 1 - scrap random pages non consecutively.
                 arguments:
@@ -107,6 +107,36 @@ class Page:
                 1 - start_consecutive : uses the PaginationRule object consecutive_pages()  method .
                 2 - start_non_consecutive : uses the PaginationRule object non_consecutive_pages() method .
                 3 - start_to_end : uses the PaginationRule object to_the_end_pages() method.
+            7 - begin_the_play :
+                1 - start scrapping operation and returns a generator object of the fetched data with the help of other private methods(mentioned down).
+                arguments:
+                    item : an object of Item class to get css selectors used to fetched the data.
+                    urlsList : a list of hard coded urls used to prevent using any methods (start_consecutive , start_non_consecutive , start_to_end).
+                    note:
+                        a call with urlsList , will override the functionality of (start_consecutive , start_non_consecutive , start_to_end)
+                            if they get called befor it to set urls , you need to set the attribute paginationRule to a PaginationRule class instance in this case .
+            8 - __get_containers :
+                1 - to get the page elements containers , where each container contains all the data needed to be fetched , returns list of all containers objects (soup object).
+                arguments:
+                    item : an object of Item class to get css selectors used to fetched the data.
+                    html : page html object (soup object) ,used to parse containers from it.
+                    containerSelector : container css selector to be fetched.
+            9 - __get_data :
+                1 - to fetched data from the container object , and returns the parsed data.
+                arguments:
+                    container : container object used to fetch the data form it.
+                    dataSelector : css selector used to parse the data from the container object.
+            10 - __save :
+                1 - returns the clean form of the data fetched as a list of dictionaries with
+                    the help of the __get_data method and some filters found in the item object.
+                arguments:
+                    item : an object of Item class to get filters used to filter the data.
+                    containers : containers list returned by __get_containers method.
+            11 - __start :
+                1 - helper method to start the real scapping operation using __save and __get_containers methods ,
+                    it returns the data returned by __save method.
+
+
 
         '''
         def __init__(self,baseUrl):
@@ -140,8 +170,6 @@ class Page:
                 print(CRED+"Error :: in get_website : this page object has no website object setted."+CEND)
                 return None
 
-
-
         def start_consecutive(self,fromPage,toPage,paginationRule):
             if not isinstance(fromPage,int) and isinstance(endPage,int) and isinstance(paginationRule,PaginationRule):
                 print(CRED+"Error :: in start_consecutive : arguments must be with int type , PaginationRule argument must be a PaginationRule object."+CEND)
@@ -173,11 +201,21 @@ class Page:
             self.paginationRule = paginationRule
             return True
 
-        def begin_the_play(self,item,urlsList = [],text = True,csv = False,json = False):
+        def begin_the_play(self,item,paginationRule,urlsList = []):
+
+            if isinstance(paginationRule,PaginationRule):
+                self.paginationRule = paginationRule
+            else:
+                print(CRED + "Error :: in begin_the_play : the argument paginationRule must be an instance of PaginationRule class." + CEND)
+                return None
+
+            if urlsList and isinstance(urlsList,list):
+                self.urls = urlsList
             if not self.urls == None and isinstance(item,Items):
                 if  isinstance(item.containerSelector,str) and len(item.containerSelector) > 1 :
                     for url in self.urls:
                         try:
+
                             response = requests.get(url)
                         except:
                             print(CRED+"Error :: in begin_the_play : with {}.".format(url)+CEND)
@@ -254,6 +292,7 @@ class Page:
                     }
                 dataList.append(dataDict.copy())
 
+
             return dataList
 
 
@@ -268,6 +307,9 @@ class Page:
 
 
 class Items:
+    '''
+        initialize an object with css selector of each item ,to be used by the begin_the_play method of the Page class.
+    '''
     def __init__(self,container = '' ,title = '',link = '',image = '',price = '',description = '',date = ''):
         self.containerSelector = container
         self.titleSelector = title

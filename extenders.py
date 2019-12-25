@@ -1,6 +1,10 @@
 import abc
 
 class PaginationRule(abc.ABC):
+    '''
+        1 - abstract class used to collect urls from given rules provided abstract methods extended by child classes.
+        2 - define filter class which contains filters for each data type.
+    '''
     @abc.abstractmethod
     def consecutive_pages(self,url,fromPage,toPage,rule = ''):  # rule argument for cases where pagination in this form   url/?page=Page_number , where rule = ?page=
         pass
@@ -27,9 +31,16 @@ class OuedKniss(PaginationRule):
             yield (url + str(page))
 
     def to_the_end_pages(self,url,fromPage):
-        stopCondition = 'not setted yet'
+        from requests import get
+        from bs4 import BeautifulSoup as soup
+        stopCondition = False
         while not stopCondition:
-            yield (url + str(page))
+            response = get(url + str(fromPage) )
+            resultat = soup(response.text,'html.parser')
+            if resultat.select(".fin_resultat"):
+                stopCondition = True
+            yield (url + str(fromPage))
+            fromPage = fromPage + 1
 
 
     class filter:
