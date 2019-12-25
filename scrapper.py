@@ -1,5 +1,10 @@
-import abc
 import requests
+from bs4 import BeautifulSoup as soup
+
+CRED    = "\33[31m"
+CGREEN  = "\33[32m"
+CEND = "\033[0m"
+
 
 class WebSite:
     '''
@@ -51,18 +56,18 @@ class WebSite:
             self.url = url
             self.description = description
         else:
-            print('Error : in reset_metadata(name,url,description) - the arguments must be in str type.')
+            print(CRED+"Error : in reset_metadata : the arguments must be with str type."+CEND)
     def start(self):
         if not self.url == None:
             try:
                 response = requests.get(self.url)
-                print("response returned with {} http code.",response.status_code)
+                print(CGREEN+"response returned with {} http code.".format(response.status_code)+CEND)
                 return response
             except Exception as err:
-                print("Error :: in start() : {}".format(str(err)))
+                print(CRED+"Error :: in start : {}".format(str(err))+END)
                 return None
         else:
-            print("Error :: in start() : the url property is not setted properly.")
+            print(CRED+"Error :: in start : the url property is not setted properly."+CEND)
             return None
 
 
@@ -110,15 +115,16 @@ class Page:
                 self.baseUrl = self.baseUrl + '/'
             self.website = None
             self.urls = None
+            self.paginationRule = None
 
-            print("the base url setted properly : {}".format(self.baseUrl))
+            print(CGREEN+"the base url is setted properly : {}".format(self.baseUrl)+CEND)
         def set_website(self,website,returnWebSiteObj = False):
             self.website = website
             if not isinstance(self.website,WebSite):
-                print("Error :: in set_website(website) : the website argument must an instance of the WebSite class.")
+                print(CRED+"Error :: in set_website : the website argument must an instance of the WebSite class."+CEND)
                 return None
             else:
-                print("Website object is setted properly for this page object.")
+                print(CGREEN+"Website object is setted properly for this page object."+CEND)
                 if returnWebSiteObj:
                     return returnWebSiteObj
         def get_website(self,print_data = True,returnWebSiteObj = True):
@@ -131,93 +137,125 @@ class Page:
                 if returnWebSiteObj:
                     return self.website
             else:
-                print("Error :: in get_website() : this page object has no website object setted.")
+                print(CRED+"Error :: in get_website : this page object has no website object setted."+CEND)
                 return None
 
 
 
         def start_consecutive(self,fromPage,toPage,paginationRule):
             if not isinstance(fromPage,int) and isinstance(endPage,int) and isinstance(paginationRule,PaginationRule):
-                print("Error :: in start_consecutive : arguments must be with int type , PaginationRule argument must be a PaginationRule object.")
+                print(CRED+"Error :: in start_consecutive : arguments must be with int type , PaginationRule argument must be a PaginationRule object."+CEND)
                 return None
             else:
                 if toPage < fromPage:
-                    print("Error :: in start_consecutive : second argument must be bigger than first argument.")
+                    print(CRED+"Error :: in start_consecutive : second argument must be bigger than first argument."+CEND)
                     return None
             self.fromPage = fromPage
             self.toPage = toPage
             self.urls = paginationRule.consecutive_pages(self.baseUrl,self.fromPage,self.toPage)
+            self.paginationRule = paginationRule
+            return True
 
         def start_non_consecutive(self,pagesList,paginationRule):
             if not isinstance(pagesList,list) and len(pagesList) >= 1 and isinstance(paginationRule,PaginationRule):
-                print("Error :: in start_non_consecutive : argument must be a list with more than one item , PaginationRule argument must be a PaginationRule object.")
+                print(CRED+"Error :: in start_non_consecutive : argument must be a list with more than one item , PaginationRule argument must be a PaginationRule object."+CEND)
             self.pagesList = pagesList
             self.urls = paginationRule.non_consecutive_pages(self.baseUrl,self.pagesList)
+            self.paginationRule = paginationRule
+            return True
 
         def start_to_end(self,fromPage,paginationRule):
             if not isinstance(fromPage,int) and isinstance(paginationRule,PaginationRule):
-                print("Error :: start_to_end : argument must be with int type , PaginationRule argument must be a PaginationRule object.")
+                print(CRED+"Error :: start_to_end : argument must be with int type , PaginationRule argument must be a PaginationRule object."+CEND)
                 return None
             self.fromPage = fromPage
             self.urls = paginationRule.to_the_end_pages(self.baseUrl,self.fromPage)
+            self.paginationRule = paginationRule
+            return True
 
-
-        def begin_the_play(self,item):
+        def begin_the_play(self,item,urlsList = [],text = True,csv = False,json = False):
             if not self.urls == None and isinstance(item,Items):
-                try:
+                if  isinstance(item.containerSelector,str) and len(item.containerSelector) > 1 :
                     for url in self.urls:
-                        response = requests.get(url)
-
-                except Exception as err:
-                    print("Error :: in begin_the_play : {}.".format(str(err)))
-                    print("operation stopped.")
+                        try:
+                            response = requests.get(url)
+                        except:
+                            print(CRED+"Error :: in begin_the_play : with {}.".format(url)+CEND)
+                            continue
+                        html = soup(response.text,'html.parser')
+                        data = self.__start(item,html,item.containerSelector)
+                else:
+                    print(CRED+"Error :: in begin_the_play : the container selector // {} // is not setted properly.".format(item.containerSelector)+CEND)
                     return None
             else:
-                print("Error :: in begin_the_play : the urls attribute is not setted properly , item argument must be an instance of Items class.")
+                print(CRED+"Error :: in begin_the_play : the urls attribute is not setted properly , item argument must be an instance of Items class."+CEND)
+                return None
+
+        def __get_containers(self,item,html,containerSelector):
+            try:
+                containers = html.select(containerSelector)
+                return containers
+            except Exception as err:
+                print(CRED+"Error :: in begin_the_play : {}.".format(str(err))+CEND)
+                print(CRED+"container with selector //  {}  // cannot be fetched properly.".format(containerSelector)+CEND)
+                return None
+
+        def __get_data(self,container,dataSelector):
+            try:
+                data = container.select(dataSelector)[0]
+                return data
+            except Exception as err:
+                print(CRED+"Error :: in begin_the_play : data with // {} // selector cannot be fetched properly.".format(dataSelector)+CEND)
+                return None
+
+        def __save(self,item,containers):
+            for container in containers:
+                title = None
+                image = None
+                price = None
+                description = None
+                date = None
+                if item.titleSelector:
+                    title = self.__get_data(container,item.titleSelector)
+                    if title:
+                        title = self.paginationRule.filter(title).title_filter()
+                if item.imageSelector:
+                    image = self.__get_data(container,item.imageSelector)
+                    if image:
+                        image = self.paginationRule.filter(image).img_filter()
+                if item.priceSelector:
+                    price = self.__get_data(container,item.priceSelector)
+                    if price:
+                        price = self.paginationRule.filter(price).price_filter()
+                if item.descriptionSelector:
+                    description = self.__get_data(container,item.descriptionSelector)
+                    if description:
+                        description = self.paginationRule.filter(description).description_filter()
+                if item.dateSelector:
+                    date = self.__get_data(container,item.dateSelector)
+                    if date:
+                        date = self.paginationRule.filter(date).date_filter()
+                if item.detailsLink:
+                    detailsLink = self.__get_data(container,item.detailsLink)
+                    if detailsLink:
+                        detailsLink = self.paginationRule.filter(detailsLink).detailsLink_filter()
+            return True
+
+        def __start(self,item,html,containerSelector):
+            containers = self.__get_containers(item,html,containerSelector)
+            if containers:
+                data = self.__save(item,containers)
+                return data
+            else:
                 return None
 
 
-
-
-class PaginationRule(abc.ABC):
-    @abc.abstractmethod
-    def consecutive_pages(self,url,fromPage,toPage,rule = ''):  # rule argument for cases where pagination in this form   url/?page=Page_number , where rule = ?page=
-        pass
-    @abc.abstractmethod
-    def non_consecutive_pages(self,url,pagesList,rule = ''):
-        pass
-    @abc.abstractmethod
-    def to_the_end_pages(self,url,fromPage,rule = ''):
-        pass
-
-
-
-class OuedKniss(PaginationRule):
-    def consecutive_pages(self,url,fromPage,toPage):
-        for page in range(fromPage,toPage + 1):
-            yield (url + str(page))
-    def non_consecutive_pages(self,url,pagesList):
-        for page in pagesList:
-            yield (url + str(page))
-    def to_the_end_pages(self,url,fromPage):
-        stopCondition = 'not setted yet'
-        while not stopCondition:
-            yield (url + str(page))
-
 class Items:
-    def __init__(self,title='',image='',price='',description='',date=''):
+    def __init__(self,container = '' ,title = '',link = '',image = '',price = '',description = '',date = ''):
+        self.containerSelector = container
         self.titleSelector = title
         self.imageSelector = image
         self.priceSelector = price
         self.descriptionSelector = description
         self.dateSelector = date
-
-
-
-'''
-website = WebSite('OuedKniss','http://www.ouedKniss.dz','e-commerce web site')
-page = Page("https://www.ouedkniss.com/telephones")
-ouedKniss = OuedKniss()
-page.start_consecutive(1,3,ouedKniss)
-item = Items()
-page.begin_the_play(item)'''
+        self.detailsLink = link
