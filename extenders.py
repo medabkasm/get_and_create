@@ -28,36 +28,45 @@ class OuedKniss(PaginationRule):
         stopCondition = 'not setted yet'
         while not stopCondition:
             yield (url + str(page))
+
     class filter:
         def __init__(self,data = ''):
             self.data = data
-
         def img_filter(self):
             if self.data:
                 try:
-                    return self.data.split("(")[-1].split(")")[0]
+                    data = self.data.split("(")[-1].split(")")[0]
+                    self.data = None
+                    return data
                 except:
                     return None
+            return None
 
         def detailsLink_filter(self):
             if self.data:
                 try:
-                    return self.data.get("href")
+                    data = "https://www.ouedkniss.com/" + self.data.get("href")
+                    self.data = None
+                    return data
                 except:
                     return None
+            return None
 
         def price_filter(self):
-            self.__global_filter()
+            return self.__global_filter()
         def description_filter(self):
-            self.__global_filter()
+            return self.__global_filter()
         def date_filter(self):
-            self.__global_filter()
+            return self.__global_filter()
         def title_filter(self):
-            self.__global_filter()
+            return self.__global_filter()
 
         def __global_filter(self):
             if self.data:
                 try:
-                    return data.text
+                    data = self.data.text
+                    self.data = None
+                    return data
                 except:
                     return None
+            return None

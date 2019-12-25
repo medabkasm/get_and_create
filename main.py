@@ -2,7 +2,7 @@ from scrapper import WebSite , Page , Items
 from extenders import OuedKniss
 
 
-print("heeloo")
+
 if __name__ == "__main__":
 
     website = WebSite('OuedKniss','https://www.ouedKniss.com','e-commerce web site')
@@ -21,4 +21,5 @@ if __name__ == "__main__":
     item.imageSelector = ".annonce_image_img"
 
 
-    page.begin_the_play(item)
+    data = page.begin_the_play(item)
+    print(data[0])

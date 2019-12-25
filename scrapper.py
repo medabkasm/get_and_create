@@ -184,6 +184,9 @@ class Page:
                             continue
                         html = soup(response.text,'html.parser')
                         data = self.__start(item,html,item.containerSelector)
+                        return data
+
+
                 else:
                     print(CRED+"Error :: in begin_the_play : the container selector // {} // is not setted properly.".format(item.containerSelector)+CEND)
                     return None
@@ -209,12 +212,11 @@ class Page:
                 return None
 
         def __save(self,item,containers):
+
+            dataList = []
+            dataDict = {}
             for container in containers:
-                title = None
-                image = None
-                price = None
-                description = None
-                date = None
+
                 if item.titleSelector:
                     title = self.__get_data(container,item.titleSelector)
                     if title:
@@ -233,21 +235,35 @@ class Page:
                         description = self.paginationRule.filter(description).description_filter()
                 if item.dateSelector:
                     date = self.__get_data(container,item.dateSelector)
+                    data = None
                     if date:
                         date = self.paginationRule.filter(date).date_filter()
                 if item.detailsLink:
                     detailsLink = self.__get_data(container,item.detailsLink)
                     if detailsLink:
                         detailsLink = self.paginationRule.filter(detailsLink).detailsLink_filter()
-            return True
+
+                dataDict = {
+                    "title" : title ,
+                    "link"  : detailsLink,
+                    "image" : image,
+                    "price" : price,
+                    "description" : description,
+                    "date" : None ,
+                    }
+                dataList.append(dataDict.copy())
+
+            return dataList
+
 
         def __start(self,item,html,containerSelector):
             containers = self.__get_containers(item,html,containerSelector)
             if containers:
-                data = self.__save(item,containers)
-                return data
+                return self.__save(item,containers)
             else:
                 return None
+
+
 
 
 class Items:
