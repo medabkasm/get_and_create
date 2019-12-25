@@ -21,13 +21,17 @@ class OuedKniss(PaginationRule):
     def consecutive_pages(self,url,fromPage,toPage):
         for page in range(fromPage,toPage + 1):
             yield (url + str(page))
+
     def non_consecutive_pages(self,url,pagesList):
+        pagesLinks = []
         for page in pagesList:
             yield (url + str(page))
+                
     def to_the_end_pages(self,url,fromPage):
         stopCondition = 'not setted yet'
         while not stopCondition:
             yield (url + str(page))
+
 
     class filter:
         def __init__(self,data = ''):

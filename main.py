@@ -8,7 +8,7 @@ if __name__ == "__main__":
     website = WebSite('OuedKniss','https://www.ouedKniss.com','e-commerce web site')
     page = Page("https://www.ouedkniss.com/telephones")
     ouedKniss = OuedKniss()
-    page.start_consecutive(1,2,ouedKniss)
+    page.start_non_consecutive([1,5,6],ouedKniss)
     page.set_website(website)
     page.get_website()
     item = Items()
@@ -20,6 +20,4 @@ if __name__ == "__main__":
     item.priceSelector = ".annonce_prix"
     item.imageSelector = ".annonce_image_img"
 
-
     data = page.begin_the_play(item)
-    print(data[0])
