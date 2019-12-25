@@ -22,8 +22,8 @@ if __name__ == "__main__":
     item.priceSelector = ".annonce_prix"
     item.imageSelector = ".annonce_image_img"
     urls = ["https://www.ouedkniss.com/cosmetiques/1","https://www.ouedkniss.com/telephones/1"]
-    #page.paginationRule = ouedKniss
-    data = page.begin_the_play(item,ouedKniss,urls)
+    page.paginationRule = ouedKniss
+    data = page.begin_the_play(item,urls)
     #data = page.begin_the_play(item)
     for el in data:
         print(el)

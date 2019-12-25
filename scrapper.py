@@ -201,13 +201,7 @@ class Page:
             self.paginationRule = paginationRule
             return True
 
-        def begin_the_play(self,item,paginationRule,urlsList = []):
-
-            if isinstance(paginationRule,PaginationRule):
-                self.paginationRule = paginationRule
-            else:
-                print(CRED + "Error :: in begin_the_play : the argument paginationRule must be an instance of PaginationRule class." + CEND)
-                return None
+        def begin_the_play(self,item,urlsList = []):
 
             if urlsList and isinstance(urlsList,list):
                 self.urls = urlsList
