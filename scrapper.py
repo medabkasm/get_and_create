@@ -161,7 +161,6 @@ class Page:
                 print(CRED+"Error :: in start_non_consecutive : argument must be a list with more than one item , PaginationRule argument must be a PaginationRule object."+CEND)
             self.pagesList = pagesList
             self.urls = paginationRule.non_consecutive_pages(self.baseUrl,self.pagesList)
-            print(self.urls)
             self.paginationRule = paginationRule
             return True
 
@@ -185,8 +184,8 @@ class Page:
                             continue
                         html = soup(response.text,'html.parser')
                         data = self.__start(item,html,item.containerSelector)
-                        print(data)
-                        print(len(data))
+
+                        yield (data)
 
 
                 else:

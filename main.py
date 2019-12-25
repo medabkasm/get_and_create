@@ -21,3 +21,5 @@ if __name__ == "__main__":
     item.imageSelector = ".annonce_image_img"
 
     data = page.begin_the_play(item)
+    for element in data:
+        print(element)
