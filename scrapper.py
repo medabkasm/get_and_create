@@ -5,6 +5,9 @@ CRED    = "\33[31m"
 CGREEN  = "\33[32m"
 CEND = "\033[0m"
 
+'''
+    created by medabkasm O-O -> github account : https://github.com/medabkasm
+'''
 
 class WebSite:
     '''
