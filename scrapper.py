@@ -209,16 +209,16 @@ class Page:
                 if  isinstance(item.containerSelector,str) and len(item.containerSelector) > 1 :
                     for url in self.urls:
                         try:
-
                             response = requests.get(url)
                         except:
                             print(CRED+"Error :: in begin_the_play : with {}.".format(url)+CEND)
                             continue
                         html = soup(response.text,'html.parser')
                         data = self.__start(item,html,item.containerSelector)
-
-                        yield (data)
-
+                        if data:
+                            yield (data)
+                        else:
+                            break
 
                 else:
                     print(CRED+"Error :: in begin_the_play : the container selector // {} // is not setted properly.".format(item.containerSelector)+CEND)
@@ -227,10 +227,15 @@ class Page:
                 print(CRED+"Error :: in begin_the_play : the urls attribute is not setted properly , item argument must be an instance of Items class."+CEND)
                 return None
 
+            print(CGREEN + "end of pages !"+CEND)
+            return
+
         def __get_containers(self,item,html,containerSelector):
             try:
                 containers = html.select(containerSelector)
-                return containers
+                if containers:
+                    return containers
+                return None
             except Exception as err:
                 print(CRED+"Error :: in begin_the_play : {}.".format(str(err))+CEND)
                 print(CRED+"container with selector //  {}  // cannot be fetched properly.".format(containerSelector)+CEND)
@@ -249,7 +254,12 @@ class Page:
             dataList = []
             dataDict = {}
             for container in containers:
-
+                title = None
+                image = None
+                price =None
+                description = None
+                date = None
+                detailsLink = None
                 if item.titleSelector:
                     title = self.__get_data(container,item.titleSelector)
                     if title:
@@ -282,7 +292,7 @@ class Page:
                     "image" : image,
                     "price" : price,
                     "description" : description,
-                    "date" : None ,
+                    "date" : date ,
                     }
                 dataList.append(dataDict.copy())
 
