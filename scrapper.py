@@ -46,12 +46,16 @@ class WebSite:
         self.description = description
 
     def get_metadata(self,print_data = True,return_dict = False):
-        print('name : ',self.name)
-        print('url : ',self.url)
-        print('description : ',self.description)
-        return True
+
+        if print_data:
+            print('name : ',self.name)
+            print('url : ',self.url)
+            print('description : ',self.description)
+
         if return_dict:
             return { 'name': self.name , 'url': self.url , 'description' : self.description }
+
+        return True
 
     def reset_metadata(self,name = '',url = '',description = ''):
         if isinstance(name,str) and isinstance(url,str) and isinstance(description,str):
