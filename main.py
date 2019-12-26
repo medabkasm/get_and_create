@@ -53,4 +53,26 @@ if __name__ == "__main__":
         for el in data:
             print(el)
 
-    jumia_test()
+    def hanoutDz_test():
+        website = WebSite('hanoutDz','https://hanoutdz.com/','e-commerce web site')
+        page = Page("https://hanoutdz.com/categorie-produit/accessoires-auto/")
+        hanoutDz = HanoutDz()
+        #page.start_to_end(2,hanoutDz)
+        #page.start_consecutive(1,6,hanoutDz)
+        #page.start_non_consecutive([1,3,10,11],hanoutDz)
+        page.set_website(website)
+        page.get_website()
+        item = Items()
+        item.containerSelector = ".item-detail"
+        item.titleSelector = ".item-content h4"
+        item.detailsLink = "a"
+        item.imageSelector = "img"
+        item.priceSelector = ".woocommerce-Price-amount"
+        urls = ["https://hanoutdz.com/categorie-produit/accessoires-auto/","https://hanoutdz.com/categorie-produit/sante-beaute/coiffure-soincheveux/"]
+        page.paginationRule = hanoutDz
+        data = page.begin_the_play(item)
+        data = page.begin_the_play(item,urls)
+        print(data)
+        for el in data:
+            print(el)
+    hanoutDz_test()

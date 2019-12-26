@@ -100,7 +100,65 @@ class Jumia(PaginationRule):
         def img_filter(self):
             if self.data:
                 try:
-                    data = self.data.img.get("src")
+                    data = self.data.get("data-lazy-src")
+                    self.data = None
+                    return data
+                except:
+                    return None
+            return None
+
+        def detailsLink_filter(self):
+            if self.data:
+                try:
+                    data =  self.data.get("href")
+                    self.data = None
+                    return data
+                except:
+                    return None
+            return None
+
+        def price_filter(self):
+            return self.__global_filter()
+        def description_filter(self):
+            return self.__global_filter()
+        def date_filter(self):
+            return self.__global_filter()
+        def title_filter(self):
+            return self.__global_filter()
+
+        def __global_filter(self):
+            if self.data:
+                try:
+                    data = self.data.text
+                    self.data = None
+                    return data
+                except:
+                    return None
+            return None
+
+
+class HanoutDz(PaginationRule):
+
+    def consecutive_pages(self,url,fromPage,toPage):
+        for page in range(fromPage,toPage + 1):
+            yield (url + "page/" + str(page))
+
+    def non_consecutive_pages(self,url,pagesList):
+        for page in pagesList:
+            yield (url + "page/" + str(page))
+
+    def to_the_end_pages(self,url,fromPage):
+        while True:
+            yield (url + "page/" + str(fromPage))
+            fromPage = fromPage + 1
+
+    class filter:
+        def __init__(self,data = ''):
+            self.data = data
+        def img_filter(self):
+            if self.data:
+                try:
+                    data = self.data.get("data-lazy-src")
                     self.data = None
                     return data
                 except:

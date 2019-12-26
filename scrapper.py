@@ -64,10 +64,16 @@ class WebSite:
             self.description = description
         else:
             print(CRED+"Error : in reset_metadata : the arguments must be with str type."+CEND)
-    def start(self):
+    def start(self,headers = {}):
+        if headers and isinstance(headers,dict):
+            self.headers = headers
+        else:
+            self.headers = {
+                    "user-agent" : "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0"
+                    }
         if not self.url == None:
             try:
-                response = requests.get(self.url)
+                response = requests.get(self.url,headers = self.headers)
                 print(CGREEN+"response returned with {} http code.".format(response.status_code)+CEND)
                 return response
             except Exception as err:
@@ -146,13 +152,19 @@ class Page:
 
 
         '''
-        def __init__(self,baseUrl):
+        def __init__(self,baseUrl,headers = {}):
             self.baseUrl = baseUrl
             if not self.baseUrl[-1] == '/':
                 self.baseUrl = self.baseUrl + '/'
             self.website = None
             self.urls = None
             self.paginationRule = None
+            if headers and isinstance(headers,dict):
+                self.headers = headers
+            else:
+                self.headers = {
+                        "user-agent" : "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0"
+                        }
 
             print(CGREEN+"the base url is setted properly : {}".format(self.baseUrl)+CEND)
         def set_website(self,website,returnWebSiteObj = False):
@@ -216,7 +228,7 @@ class Page:
                 if  isinstance(item.containerSelector,str) and len(item.containerSelector) > 1 :
                     for url in self.urls:
                         try:
-                            response = requests.get(url)
+                            response = requests.get(url ,headers = self.headers)
                         except:
                             print(CRED+"Error :: in begin_the_play : with {}.".format(url)+CEND)
                             continue
