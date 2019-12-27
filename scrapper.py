@@ -220,7 +220,7 @@ class Page:
             self.paginationRule = paginationRule
             return True
 
-        def begin_the_play(self,item,urlsList = []):
+        def begin_the_play(self,item,strictMode = False,urlsList = []):
 
             if urlsList and isinstance(urlsList,list):
                 self.urls = urlsList
@@ -233,7 +233,7 @@ class Page:
                             print(CRED+"Error :: in begin_the_play : with {}.".format(url)+CEND)
                             continue
                         html = soup(response.text,'html.parser')
-                        data = self.__start(item,html,item.containerSelector)
+                        data = self.__start(item,html,item.containerSelector,strictMode)
                         if data:
                             yield (data)
                         else:
@@ -268,7 +268,7 @@ class Page:
                 print(CRED+"Error :: in begin_the_play : data with // {} // selector cannot be fetched properly.".format(dataSelector)+CEND)
                 return None
 
-        def __save(self,item,containers):
+        def __save(self,item,containers,strictMode = None): # strictMode not used for now.
 
             dataList = []
             dataDict = {}
@@ -283,46 +283,50 @@ class Page:
                     title = self.__get_data(container,item.titleSelector)
                     if title:
                         title = self.paginationRule.filter(title).title_filter()
+
                 if item.imageSelector:
                     image = self.__get_data(container,item.imageSelector)
                     if image:
                         image = self.paginationRule.filter(image).img_filter()
+
                 if item.priceSelector:
                     price = self.__get_data(container,item.priceSelector)
                     if price:
                         price = self.paginationRule.filter(price).price_filter()
+
                 if item.descriptionSelector:
                     description = self.__get_data(container,item.descriptionSelector)
                     if description:
                         description = self.paginationRule.filter(description).description_filter()
+
                 if item.dateSelector:
                     date = self.__get_data(container,item.dateSelector)
-                    data = None
                     if date:
                         date = self.paginationRule.filter(date).date_filter()
+
                 if item.detailsLink:
                     detailsLink = self.__get_data(container,item.detailsLink)
                     if detailsLink:
                         detailsLink = self.paginationRule.filter(detailsLink).detailsLink_filter()
 
                 dataDict = {
-                    "title" : title ,
-                    "link"  : detailsLink,
-                    "image" : image,
-                    "price" : price,
-                    "description" : description,
-                    "date" : date ,
-                    }
+                        "title" : title ,
+                        "link"  : detailsLink,
+                        "image" : image,
+                        "price" : price,
+                        "description" : description,
+                        "date" : date ,
+                        }
                 dataList.append(dataDict.copy())
 
 
             return dataList
 
 
-        def __start(self,item,html,containerSelector):
+        def __start(self,item,html,containerSelector,strictMode = None):
             containers = self.__get_containers(item,html,containerSelector)
             if containers:
-                return self.__save(item,containers)
+                return self.__save(item,containers,strictMode)
             else:
                 return None
 
