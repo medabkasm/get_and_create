@@ -25,7 +25,7 @@ if __name__ == "__main__":
     #data = test.start_with_urls(urls,ouedKniss)
     save = Save(data)
     save.to_json()
-
+    save.to_csv()
 
 
     '''# jumia test
