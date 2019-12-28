@@ -2,7 +2,7 @@ from scrapper import *
 from extenders import *
 import resource
 from testing import Test
-
+from saver import Save
 
 if __name__ == "__main__":
 
@@ -23,9 +23,12 @@ if __name__ == "__main__":
     #data = test.start_non_consecutive([1,3,4])
     #data = test.start_to_end(10)
     #data = test.start_with_urls(urls,ouedKniss)
-    print(data)
+    save = Save(data)
+    save.to_json()
 
-    # jumia test
+
+
+    '''# jumia test
     website = WebSite('jumia','https://www.jumia.dz/','e-commerce web site')
     page = Page("https://www.jumia.dz/telephones-smartphones/")
     jumia = Jumia()
@@ -59,4 +62,4 @@ if __name__ == "__main__":
     #data = test.start_non_consecutive([1,3,4])
     #data = test.start_to_end(10)
     #data = test.start_with_urls(urls,hanoutDz)
-    print(data)
+    print(data)'''

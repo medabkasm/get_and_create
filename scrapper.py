@@ -159,6 +159,7 @@ class Page:
             self.website = None
             self.urls = None
             self.paginationRule = None
+            
             if headers and isinstance(headers,dict):
                 self.headers = headers
             else:
