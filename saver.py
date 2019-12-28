@@ -20,7 +20,7 @@ class Save:
 
     def to_json(self,fileName = ''):
         import json
-        fileName = self.__check_fileName(fileName,"json_data.js","json")
+        fileName = self.__check_fileName(fileName,"json_data.json","json")
         try:
             if isinstance(self.data , GeneratorType):
                     self.data = list(self.data)
