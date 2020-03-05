@@ -1,0 +1,27 @@
+{
+  "ouedkniss":{
+      "containerSelector" : ".annonce_left",
+      "titleSelector" : ".annonce_titre h2",
+      "detailsLink" : ".annonce_titre a",
+      "descriptionSelector" : ".annonce_description_preview",
+      "priceSelector" : ".annonce_prix",
+      "imageSelector" : ".annonce_image_img"
+  }
+  ,
+  "jumia":{
+      "containerSelector" : ".sku",
+      "titleSelector" : ".title .name",
+      "detailsLink" : "a",
+      "priceSelector" : ".price-box",
+      "imageSelector" : ".image-wrapper"
+  }
+  ,
+  "hanoutDz":{
+      "containerSelector" : ".item-detail",
+      "titleSelector" : ".item-content h4",
+      "detailsLink" : "a",
+      "priceSelector" : ".woocommerce-Price-amount",
+      "imageSelector" : "img"
+  }
+
+}

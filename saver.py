@@ -6,7 +6,6 @@ CEND = "\033[0m"
 
 class Save:
 
-
     def __new__(Save,data):
         if not isinstance(data, GeneratorType):
             print(CYELLOW+"Warning :: the data must be with type generator."+CEND)

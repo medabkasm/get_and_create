@@ -5,6 +5,7 @@ class PaginationRule(abc.ABC):
         1 - abstract class used to collect urls from given rules provided abstract methods extended by child classes.
         2 - define filter class which contains filters for each data type.
     '''
+
     @abc.abstractmethod
     def consecutive_pages(self,url,fromPage,toPage,rule = ''):  # rule argument for cases where pagination in this form   url/?page=Page_number , where rule = ?page=
         pass
@@ -17,8 +18,6 @@ class PaginationRule(abc.ABC):
 
     class filter:
         pass
-
-
 
 
 class OuedKniss(PaginationRule):
